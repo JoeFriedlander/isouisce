@@ -1,4 +1,5 @@
-isoUisce by Joe Friedlander
+# isoUisce
+**by Joe Friedlander**
 
 Inspired by Wetrix developed by Zed Two
 
