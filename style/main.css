@@ -1,7 +1,7 @@
 canvas {
-    display: block; margin: 14.5vh auto;
+    display: block; margin: 0px auto;
 }
-body {
-    background-color: #221D23;
+html, body {
+    background-color: #021D23;
 }
 h1 { text-align: center; }

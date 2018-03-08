@@ -8,8 +8,8 @@ window.onload = function() {
 	let ctx = canvas.getContext("2d");
 	let width = canvas.width;
 	let height = canvas.height;
-	let tileWidth = 50;
-	let tileHeight = 30;
+	let tileWidth = 70;
+	let tileHeight = 40;
 	let gridColumnNum = 10;
 	let gridRowNum = 10;
 	let heightIncrease = .6;
@@ -433,6 +433,13 @@ window.onload = function() {
 		}
 	}
 
+	//MUSIC AND SOUNDS =======================================================
+	let introSong = new Audio('data/sound/introSong.wav');
+	function resetIntroSong() {
+		introSong.currentTime=0;
+		introSong.play();
+	}
+
 	//UPDATE =================================================================
 	function update(){
 		//Updates all blocks in ground grid
@@ -447,7 +454,7 @@ window.onload = function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		//sets origin closer to middle of screen
 		ctx.save();
-		ctx.translate(width / 2, height / 2.5);
+		ctx.translate(width / 2, height / 2.3);
 		//draws ground blocks
 		drawStoneGrid();
 		//draws sky blocks
@@ -462,10 +469,12 @@ window.onload = function() {
 		render();
 		requestAnimationFrame(frame);
 	}
+	introSong.play();
 	initializeStoneGrid();
 	createSkyShape();
 	requestAnimationFrame(frame);
 
 	//EVENT LISTENERS =======================================================
 	window.addEventListener("keydown", skyHolderMove, false);
+	introSong.addEventListener("ended", resetIntroSong, false);
 }
