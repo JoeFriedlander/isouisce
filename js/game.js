@@ -8,45 +8,58 @@ window.onload = function() {
 	let ctx = canvas.getContext("2d");
 	let width = canvas.width;
 	let height = canvas.height;
-	let tileWidth = 60;
+	let tileWidth = 50;
 	let tileHeight = 30;
 	let gridColumnNum = 10;
 	let gridRowNum = 10;
 	let heightIncrease = .6;
 
-	//Ground Grid =============================================================
-    let groundGrid = new Array(gridColumnNum);
-	function initializeGroundGrid(){
+	//Stone Grid =============================================================
+    let stoneGrid = new Array(gridColumnNum);
+	function initializeStoneGrid(){
 		for(let i = 0; i < gridColumnNum; i++){
-			groundGrid[i] = new Array(gridRowNum);
+			stoneGrid[i] = new Array(gridRowNum);
 			for(let j = 0; j < gridRowNum; j++){
-				groundGrid[i][j] = new GroundBlock(i,j,1);
+				stoneGrid[i][j] = new GroundBlock(i, j, 1,
+						"hsla(0, 0%, 73%, 1)",
+						"hsla(0, 0%, 80%, 1)",
+						"hsla(0, 0%, 60%, 1)",
+						"hsla(0, 0%, 29%, 1)");
 			}
 		}
 	};
-	function drawGroundGrid(){
-		for(let i = 0; i < groundGrid.length; i++){
-			for(let j = 0; j < groundGrid[i].length; j++){
-				groundGrid[i][j].draw();
+	function drawStoneGrid(){
+		for(let i = 0; i < stoneGrid.length; i++){
+			for(let j = 0; j < stoneGrid[i].length; j++){
+				stoneGrid[i][j].draw();
 			}
 		}
 	};
-	function groundGridUpdate() {
-		for(let i = 0; i < groundGrid.length; i++){
-			for(let j = 0; j < groundGrid[i].length; j++){
-				groundGrid[i][j].update();
+	function stoneGridUpdate() {
+		for(let i = 0; i < stoneGrid.length; i++){
+			for(let j = 0; j < stoneGrid[i].length; j++){
+				stoneGrid[i][j].update();
 			}
 		}
 	};
 
 	//Ground Block  ===========================================================
-	function GroundBlock(x, y, z){
+	function GroundBlock(x, y, z, topColor, leftColor, rightColor,
+			shadowColor){
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.topColor = "#bbbbbb";
-		this.leftColor = "#cccccc";
-		this.rightColor = "#999999";
+		this.topColor = topColor;
+		this.leftColor = leftColor;
+		this.rightColor = rightColor;
+		this.shadowColor = shadowColor;
+		this.displayTop = topColor;
+		this.displayLeft = leftColor;
+		this.displayRight = rightColor;
+	};
+
+	GroundBlock.prototype.update = function(){
+		this.manageColor();
 	};
 
     GroundBlock.prototype.draw = function(){
@@ -61,9 +74,7 @@ window.onload = function() {
         ctx.lineTo(0, tileHeight - this.z * tileHeight);
         ctx.lineTo(-tileWidth / 2, tileHeight / 2 -this.z * tileHeight);
         ctx.closePath();
-        ctx.fillStyle = this.topColor;
-		if(this.topColor == "4a4a4a"){
-		}
+        ctx.fillStyle = this.displayTop;
         ctx.fill();
 		ctx.stroke();
 
@@ -74,7 +85,7 @@ window.onload = function() {
         ctx.lineTo(0, tileHeight);
         ctx.lineTo(-tileWidth / 2, tileHeight / 2);
         ctx.closePath();
-        ctx.fillStyle = this.leftColor;
+        ctx.fillStyle = this.displayLeft;
         ctx.fill();
 		ctx.stroke();
 
@@ -85,7 +96,7 @@ window.onload = function() {
         ctx.lineTo(0, tileHeight);
         ctx.lineTo(tileWidth / 2, tileHeight / 2);
         ctx.closePath();
-        ctx.fillStyle = this.rightColor;
+        ctx.fillStyle = this.displayRight;
         ctx.fill();
 		ctx.stroke();
 
@@ -93,12 +104,8 @@ window.onload = function() {
 
     };
 
-	GroundBlock.prototype.update = function(){
-		this.beTouchedBySkyBlock();
-		this.beAffectedByShadow();
-	};
-
-	GroundBlock.prototype.beAffectedByShadow = function(){
+	GroundBlock.prototype.manageColor = function(){
+		//manages shadows
 		let hasShadow = false;
 		for(block in skyHolder){
 			if(skyHolder[block].x == this.x &&
@@ -107,22 +114,28 @@ window.onload = function() {
 			}
 		}
 		if(hasShadow){
-			this.topColor = "#4a4a4a";
+			this.displayTop = this.shadowColor;
+			if(this.y != gridColumnNum - 1){
+				this.displayLeft = this.shadowColor;
+			}
+			if(this.x != gridRowNum - 1){
+				this.displayRight = this.shadowColor;
+			}
 		}
 		else{
-			this.topColor = "#bbbbbb"
+			this.displayTop = this.topColor;
+			this.displayLeft = this.leftColor;
+			this.displayRight = this.rightColor;
 		}
-
-	};
-
-	GroundBlock.prototype.beTouchedBySkyBlock = function(){
+		//manages transparency if skyblock is behind groundblock
 		for(block in skyHolder){
-			if(skyHolder[block].x == this.x &&
-			   skyHolder[block].y == this.y &&
-			   skyHolder[block].z - 1 <= this.z){
-				   this.z+=heightIncrease;
-		   }
+			if(skyHolder[block].z <= this.z && skyHolder[block].z > 1){
+				this.displayTop = this.displayTop.substring(0, 17) + ".3)";
+				this.displayLeft = this.displayLeft.substring(0, 17) + ".3)";
+				this.displayRight = this.displayRight.substring(0, 17) + ".3)";
+			}
 		}
+
 	};
 
 	//Sky Grid ===============================================================
@@ -269,14 +282,38 @@ window.onload = function() {
 		let choice = Math.random()*75;
 		if(choice < 25){
 			//square
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2) - 2,
+			Math.floor(gridRowNum/2),skyBlockDefaultZ));
 			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2) - 1,
 			Math.floor(gridRowNum/2),skyBlockDefaultZ));
 			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2),
 			Math.floor(gridRowNum/2),skyBlockDefaultZ));
-			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2) - 1,
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 + 1),
+			Math.floor(gridRowNum/2),skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 + 2),
+			Math.floor(gridRowNum/2),skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 + 2),
 			Math.floor(gridRowNum/2) + 1,skyBlockDefaultZ));
-			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2),
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 + 2),
+			Math.floor(gridRowNum/2) + 2,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 + 2),
+			Math.floor(gridRowNum/2) + 3,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2) - 2,
 			Math.floor(gridRowNum/2) + 1,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 - 2),
+			Math.floor(gridRowNum/2) + 2,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 - 2),
+			Math.floor(gridRowNum/2) + 3,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 - 2),
+			Math.floor(gridRowNum/2) + 4,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 - 1),
+			Math.floor(gridRowNum/2) + 4,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 - 0),
+			Math.floor(gridRowNum/2) + 4,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 + 1),
+			Math.floor(gridRowNum/2) + 4,skyBlockDefaultZ));
+			skyHolder.push(new SkyBlock(Math.floor(gridColumnNum/2 + 2),
+			Math.floor(gridRowNum/2) + 4,skyBlockDefaultZ));
 		}
 		else if(choice >=25 && choice < 50){
 			//squiggle
@@ -315,6 +352,21 @@ window.onload = function() {
 		}
 	}
 
+	function addHeight(){
+		for(block in skyHolder){
+			stoneGrid[(skyHolder[block].x)][skyHolder[block].y].z +=
+				heightIncrease;
+		}
+	}
+
+	function skyBlockTouchedGround(){
+		//If part of the the skyshape touches the ground, the rest of it is
+		//moved down as well.
+		addHeight();
+		deleteSkyShape();
+		createSkyShape();
+	}
+
 	//Sky Block ===============================================================
 	skyBlockDefaultZ = 8;
 	function SkyBlock(x, y, z){
@@ -323,9 +375,9 @@ window.onload = function() {
 		this.z = z;
 		//gives id so skyBlock can be deleted later
 		this.id = Object.keys(skyHolder).length;
-		this.topColor = "blue";
-		this.leftColor = "#cccccc";
-		this.rightColor = "#999999";
+		this.topColor = "hsla(220, 61%, 60%, 1)";
+		this.leftColor = "hsla(0, 0%, 80%, 1)";
+		this.rightColor = "hsla(0, 0%, 60%, 1)";
 	};
 
     SkyBlock.prototype.draw = function(){
@@ -376,24 +428,15 @@ window.onload = function() {
 	};
 
 	SkyBlock.prototype.touchGround = function(){
-		if(this.z - 1 <= groundGrid[this.x][this.y].z){
-			//Moves rest of skyblocks to ground. This is so if half the skyshape
-			//touches a ground block then the whole thing is put to the ground.
-			for(block in skyHolder){
-				skyHolder[block].z  = groundGrid[this.x][this.y].z + 1;
-			}
-			//deletes other blocks
-			deleteSkyShape();
-
-			//creates new sky shape
-			createSkyShape();
+		if(this.z - 1 <= stoneGrid[this.x][this.y].z){
+			skyBlockTouchedGround();
 		}
 	}
 
 	//UPDATE =================================================================
 	function update(){
 		//Updates all blocks in ground grid
-		groundGridUpdate();
+		stoneGridUpdate();
 		//Updates all blocks in sky grid
 		skyHolderUpdate();
 	};
@@ -406,7 +449,7 @@ window.onload = function() {
 		ctx.save();
 		ctx.translate(width / 2, height / 2.5);
 		//draws ground blocks
-		drawGroundGrid();
+		drawStoneGrid();
 		//draws sky blocks
 		drawSkyHolder();
 		//restores canvas coordinates
@@ -419,7 +462,7 @@ window.onload = function() {
 		render();
 		requestAnimationFrame(frame);
 	}
-	initializeGroundGrid();
+	initializeStoneGrid();
 	createSkyShape();
 	requestAnimationFrame(frame);
 
