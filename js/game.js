@@ -13,8 +13,9 @@ window.onload = function() {
 	let gridColumnNum = 10;
 	let gridRowNum = 10;
 	let startingHeight = 2;
-	let heightIncrease = .6;
-	let sinkAmount = .0008;
+	let maxHeight = 3;
+	let heightIncrease = .5;
+	let sinkAmount = .0009;
 
 	//Stone Grid =============================================================
     let stoneGrid = new Array(gridColumnNum);
@@ -50,7 +51,6 @@ window.onload = function() {
 				}
 			}
 			if(submergedCount == submergedNum){
-				alert("Game over!");
 				resetSkyHolder();
 				resetStoneGrid();
 			}
@@ -159,16 +159,8 @@ window.onload = function() {
 					}
 			}
 		}
-		//manages transparency if skyblock is behind groundblock
-		for(block in skyHolder){
-			if(skyHolder[block].z <= this.z && skyHolder[block].z > 1){
-				this.displayTop = this.displayTop.substring(0, 17) + ".3)";
-				this.displayLeft = this.displayLeft.substring(0, 17) + ".3)";
-				this.displayRight = this.displayRight.substring(0, 17) + ".3)";
-			}
-		}
 		//manages sinking color, if z is 0 or below then it is blue
-		if(this.z < 0){
+		if(this.z <= 0){
 			this.displayTop = hasTopShadow? this.waterZeroShadowColor :
 										    this.waterZeroColor;
 			this.displayLeft = hasLeftShadow? this.waterZeroShadowColor :
@@ -203,6 +195,18 @@ window.onload = function() {
 			this.displayRight = hasRightShadow? this.shadowColor :
 												this.rightColor;
 		}
+		/*
+		//manages transparency if skyblock is behind groundblock
+		//Need transparency for blocks behidn blocks. Need to
+		//prevent flickering sometimes if skyshape added to blocks of max
+		//height
+		for(block in skyHolder){
+			if(skyHolder[block].z <= this.z && skyHolder[block].z > 1){
+				this.displayTop = this.displayTop.substring(0, 17) + ".3)";
+				this.displayLeft = this.displayLeft.substring(0, 17) + ".3)";
+				this.displayRight = this.displayRight.substring(0, 17) + ".3)";
+			}
+		}*/
 
 	};
 	GroundBlock.prototype.sink = function(){
@@ -345,7 +349,7 @@ window.onload = function() {
 			case 101:
 			case 32:
 				for(block in skyHolder){
-					skyHolder[block].z-=1.4;
+					skyHolder[block].z-=4;
 				}
 			break;
 		}
@@ -423,17 +427,30 @@ window.onload = function() {
 		}
 	}
 	function addHeight(){
-		for(block in skyHolder){
-			if(stoneGrid[(skyHolder[block].x)][skyHolder[block].y].z > 0){
-				stoneGrid[(skyHolder[block].x)][skyHolder[block].y].z +=
+		for(b in skyHolder){
+			//not underwater
+			if(stoneGrid[(skyHolder[b].x)][skyHolder[b].y].z > 0){
+				stoneGrid[(skyHolder[b].x)][skyHolder[b].y].z +=
 					heightIncrease;
+				//not above max height
+				if(stoneGrid[(skyHolder[b].x)][skyHolder[b].y].z >= maxHeight){
+					stoneGrid[(skyHolder[b].x)][skyHolder[b].y].z = maxHeight;
+				}
 			}
 		}
 	}
+	/*function splash(){
+		for(block in skyHolder){
+			if(stoneGrid[(skyHolder[block].x)][skyHolder[block].y].z <= 0){
+				stoneGrid[(skyHolder[block].x+1)][skyHolder[block].y].z = 0;
+			}
+		}
+	}*/
 	function skyBlockTouchedGround(){
 		//If part of the the skyshape touches the ground, the rest of it is
 		//moved down as well.
 		addHeight();
+		//splash();
 		deleteSkyShape();
 		createSkyShape();
 	}
@@ -475,9 +492,9 @@ window.onload = function() {
 		ctx.beginPath();
 		ctx.moveTo(-tileWidth / 2, tileHeight / 2 - this.z * tileHeight);
 		ctx.lineTo(0, tileHeight - this.z * tileHeight);
-		ctx.lineTo(0, 2*tileHeight - this.z * tileHeight);
+		ctx.lineTo(0, 1.5*tileHeight - this.z * tileHeight);
 		ctx.lineTo(-tileWidth / 2,
-				   tileHeight / 2 - (this.z * tileHeight) + tileHeight);
+				   tileHeight / 2 - (this.z * tileHeight) + .5*tileHeight);
 		ctx.closePath();
 		ctx.fillStyle = this.leftColor;
 		ctx.fill();
@@ -487,9 +504,9 @@ window.onload = function() {
 		ctx.beginPath();
 		ctx.moveTo(tileWidth / 2, tileHeight / 2 - this.z * tileHeight);
 		ctx.lineTo(0, tileHeight - this.z * tileHeight);
-		ctx.lineTo(0, 2*tileHeight - this.z * tileHeight);
+		ctx.lineTo(0, 1.5*tileHeight - this.z * tileHeight);
 		ctx.lineTo(tileWidth / 2,
-			       tileHeight / 2 - (this.z * tileHeight) + tileHeight);
+			       tileHeight / 2 - (this.z * tileHeight) + .5*tileHeight);
 		ctx.closePath();
 		ctx.fillStyle = this.rightColor;
 		ctx.fill();
