@@ -12,7 +12,9 @@ window.onload = function() {
 	let tileHeight = 40;
 	let gridColumnNum = 10;
 	let gridRowNum = 10;
+	let startingHeight = 2;
 	let heightIncrease = .6;
+	let sinkAmount = .0008;
 
 	//Stone Grid =============================================================
     let stoneGrid = new Array(gridColumnNum);
@@ -20,11 +22,37 @@ window.onload = function() {
 		for(let i = 0; i < gridColumnNum; i++){
 			stoneGrid[i] = new Array(gridRowNum);
 			for(let j = 0; j < gridRowNum; j++){
-				stoneGrid[i][j] = new GroundBlock(i, j, 1,
-						"hsla(0, 0%, 73%, 1)",
-						"hsla(0, 0%, 80%, 1)",
-						"hsla(0, 0%, 60%, 1)",
-						"hsla(0, 0%, 29%, 1)");
+				stoneGrid[i][j] = new GroundBlock(
+						i, //x
+						j, //y
+						startingHeight, //z
+						"hsla(0, 0%, 73%, 1)", //topColor
+						"hsla(0, 0%, 80%, 1)", //leftColor
+						"hsla(0, 0%, 60%, 1)", //rightColor
+						"hsla(0, 0%, 0%, 1)", //lineColor
+						"hsla(0, 0%, 29%, 1)", //shadowColor
+						"hsla(211, 72%, 9%, 1)", //waterZeroShadowColor
+						"hsla(189, 26%, 73%, 1)", //waterTwoColor
+						"hsla(189, 26%, 42%, 1)", //waterOneColor
+						"hsla(191, 89%, 7%, 1)" //waterZeroColor
+				);
+			}
+		}
+	};
+	function stoneGridUpdate() {
+		let submergedNum = gridColumnNum*gridRowNum;
+		let submergedCount = 0;
+		for(let i = 0; i < stoneGrid.length; i++){
+			for(let j = 0; j < stoneGrid[i].length; j++){
+				stoneGrid[i][j].update();
+				if(stoneGrid[i][j].z <= 0){
+					submergedCount++;
+				}
+			}
+			if(submergedCount == submergedNum){
+				alert("Game over!");
+				resetSkyHolder();
+				resetStoneGrid();
 			}
 		}
 	};
@@ -35,17 +63,18 @@ window.onload = function() {
 			}
 		}
 	};
-	function stoneGridUpdate() {
+	function resetStoneGrid(){
 		for(let i = 0; i < stoneGrid.length; i++){
 			for(let j = 0; j < stoneGrid[i].length; j++){
-				stoneGrid[i][j].update();
+				stoneGrid[i][j].z = startingHeight;
 			}
 		}
-	};
+	}
 
 	//Ground Block  ===========================================================
-	function GroundBlock(x, y, z, topColor, leftColor, rightColor,
-			shadowColor){
+	function GroundBlock(x, y, z, topColor, leftColor, rightColor, lineColor,
+			shadowColor, waterZeroShadowColor, waterTwoColor, waterOneColor,
+			waterZeroColor){
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -53,15 +82,21 @@ window.onload = function() {
 		this.leftColor = leftColor;
 		this.rightColor = rightColor;
 		this.shadowColor = shadowColor;
+		this.waterZeroShadowColor = waterZeroShadowColor;
+		this.waterTwoColor = waterTwoColor;
+		this.waterOneColor = waterOneColor;
+		this.waterZeroColor = waterZeroColor;
 		this.displayTop = topColor;
 		this.displayLeft = leftColor;
 		this.displayRight = rightColor;
-	};
+		this.lineColor = lineColor;
+		this.displayLine = lineColor;
 
+	};
 	GroundBlock.prototype.update = function(){
 		this.manageColor();
+		this.sink();
 	};
-
     GroundBlock.prototype.draw = function(){
         ctx.save();
         ctx.translate((this.x - this.y) * tileWidth / 2,
@@ -69,6 +104,7 @@ window.onload = function() {
 
         //draw top
         ctx.beginPath();
+		ctx.strokeStyle = this.displayLine;
         ctx.moveTo(0, -this.z * tileHeight);
         ctx.lineTo(tileWidth / 2, tileHeight / 2 -this.z * tileHeight);
         ctx.lineTo(0, tileHeight - this.z * tileHeight);
@@ -80,6 +116,7 @@ window.onload = function() {
 
         // draw left
         ctx.beginPath();
+		ctx.strokeStyle = this.displayLine;
         ctx.moveTo(-tileWidth / 2, tileHeight / 2 - this.z * tileHeight);
         ctx.lineTo(0, tileHeight - this.z * tileHeight);
         ctx.lineTo(0, tileHeight);
@@ -91,6 +128,7 @@ window.onload = function() {
 
         // draw right
         ctx.beginPath();
+		ctx.strokeStyle = this.displayLine;
         ctx.moveTo(tileWidth / 2, tileHeight / 2 - this.z * tileHeight);
         ctx.lineTo(0, tileHeight - this.z * tileHeight);
         ctx.lineTo(0, tileHeight);
@@ -103,29 +141,23 @@ window.onload = function() {
         ctx.restore();
 
     };
-
 	GroundBlock.prototype.manageColor = function(){
 		//manages shadows
-		let hasShadow = false;
+		let hasTopShadow = false;
+		let hasLeftShadow = false;
+		let hasRightShadow = false;
+
 		for(block in skyHolder){
 			if(skyHolder[block].x == this.x &&
 		       skyHolder[block].y == this.y){
-					hasShadow = true;
+					hasTopShadow = true;
+					if(this.y != gridColumnNum - 1){
+						hasLeftShadow = true;
+					}
+					if(this.x != gridRowNum - 1){
+						hasRightShadow = true;
+					}
 			}
-		}
-		if(hasShadow){
-			this.displayTop = this.shadowColor;
-			if(this.y != gridColumnNum - 1){
-				this.displayLeft = this.shadowColor;
-			}
-			if(this.x != gridRowNum - 1){
-				this.displayRight = this.shadowColor;
-			}
-		}
-		else{
-			this.displayTop = this.topColor;
-			this.displayLeft = this.leftColor;
-			this.displayRight = this.rightColor;
 		}
 		//manages transparency if skyblock is behind groundblock
 		for(block in skyHolder){
@@ -135,8 +167,49 @@ window.onload = function() {
 				this.displayRight = this.displayRight.substring(0, 17) + ".3)";
 			}
 		}
+		//manages sinking color, if z is 0 or below then it is blue
+		if(this.z < 0){
+			this.displayTop = hasTopShadow? this.waterZeroShadowColor :
+										    this.waterZeroColor;
+			this.displayLeft = hasLeftShadow? this.waterZeroShadowColor :
+			                                 this.waterZeroColor;
+			this.displayRight = hasRightShadow? this.waterZeroShadowColor :
+			                                    this.waterZeroColor;
+			this.displayLine = this.waterZeroColor;
+			this.displayLine = this.waterZeroColor;
+			this.displayLine = this.waterZeroColor;
+		}
+		else if(this.z < .3){
+			this.displayTop = hasTopShadow? this.shadowColor :
+											this.waterOneColor;
+			this.displayLeft = hasLeftShadow? this.shadowColor :
+											  this.waterOneColor;
+			this.displayRight = hasRightShadow? this.shadowColor :
+												this.waterOneColor;
+		}
+		else if(this.z < .5){
+			this.displayTop = hasTopShadow? this.shadowColor :
+											this.waterTwoColor;
+			this.displayLeft = hasLeftShadow? this.shadowColor :
+											  this.waterTwoColor;
+			this.displayRight = hasRightShadow? this.shadowColor :
+												this.waterTwoColor;
+		}
+		else if(this.z >= .5){
+			this.displayTop = hasTopShadow? this.shadowColor :
+											this.topColor;
+			this.displayLeft = hasLeftShadow? this.shadowColor :
+											  this.leftColor;
+			this.displayRight = hasRightShadow? this.shadowColor :
+												this.rightColor;
+		}
 
 	};
+	GroundBlock.prototype.sink = function(){
+		if(this.z>=0){
+			this.z-=sinkAmount;
+		}
+	}
 
 	//Sky Grid ===============================================================
 	let skyHolder = [];
@@ -277,7 +350,6 @@ window.onload = function() {
 			break;
 		}
 	}
-
 	function createSkyShape(){
 		let choice = Math.random()*75;
 		if(choice < 25){
@@ -345,26 +417,30 @@ window.onload = function() {
 
 		}
 	}
-
 	function deleteSkyShape(){
 		for(block in skyHolder){
 			delete skyHolder[block];
 		}
 	}
-
 	function addHeight(){
 		for(block in skyHolder){
-			stoneGrid[(skyHolder[block].x)][skyHolder[block].y].z +=
-				heightIncrease;
+			if(stoneGrid[(skyHolder[block].x)][skyHolder[block].y].z > 0){
+				stoneGrid[(skyHolder[block].x)][skyHolder[block].y].z +=
+					heightIncrease;
+			}
 		}
 	}
-
 	function skyBlockTouchedGround(){
 		//If part of the the skyshape touches the ground, the rest of it is
 		//moved down as well.
 		addHeight();
 		deleteSkyShape();
 		createSkyShape();
+	}
+	function resetSkyHolder(){
+		for(block in skyHolder){
+			skyHolder[block].z = skyBlockDefaultZ;
+		}
 	}
 
 	//Sky Block ===============================================================
@@ -379,7 +455,6 @@ window.onload = function() {
 		this.leftColor = "hsla(0, 0%, 80%, 1)";
 		this.rightColor = "hsla(0, 0%, 60%, 1)";
 	};
-
     SkyBlock.prototype.draw = function(){
 		ctx.save();
 		ctx.translate((this.x - this.y) * tileWidth / 2,
@@ -422,11 +497,9 @@ window.onload = function() {
 
 		ctx.restore();
     };
-
 	SkyBlock.prototype.update = function(){
 		this.touchGround();
 	};
-
 	SkyBlock.prototype.touchGround = function(){
 		if(this.z - 1 <= stoneGrid[this.x][this.y].z){
 			skyBlockTouchedGround();
@@ -454,7 +527,7 @@ window.onload = function() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		//sets origin closer to middle of screen
 		ctx.save();
-		ctx.translate(width / 2, height / 2.3);
+		ctx.translate(width / 2, height / 2.1);
 		//draws ground blocks
 		drawStoneGrid();
 		//draws sky blocks
