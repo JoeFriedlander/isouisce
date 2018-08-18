@@ -1,7 +1,7 @@
 # isoUisce
 **by Joe Friedlander**
 
-Inspired by Wetrix developed by Zed Two
+Inspired by Wetrix developed by Zed Two. Still in Alpha, right now is just a demo
 
 Play online here: https://joefriedlander.github.io/isouisce (Plays Sound)
 
