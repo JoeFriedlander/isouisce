@@ -12,6 +12,7 @@
 ### Controls:
 Make sure numlock is on and use keypad to move around. Press spacebar or center keypad key (usually the 5 key) to lower the shape.
 
+#### More Info:
 Inspired by Wetrix developed by Zed Two (see gameplay video here: https://www.youtube.com/watch?v=XDdxAl47Hi4&t=12 ), but with different rules: In the original Wetrix, the goal is to place blocks to prevent water from falling off the table. In isoUisce the goal is to place blocks to prevent the ground from sinking.
 
 ## TODO:
