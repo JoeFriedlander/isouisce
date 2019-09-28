@@ -4,15 +4,12 @@
 **Play alpha version online here:** https://joefriedlander.github.io/isouisce
 (only tested in Chrome)
 
-### Goal:
+### Guide:
 1. Keep land above water.
-2. Drop pieces on land to add land.
-3. Don't drop pieces in the water - it will splash.
+2. Make sure numlock is on and use keypad to move around. Press spacebar or center keypad key (5) to place blocks on land to add height.
+3. Don't place blocks in the water - they will splash.
 
-### Controls:
-Make sure numlock is on and use keypad to move around. Press spacebar or center keypad key (usually the 5 key) to lower the shape.
-
-#### More Info:
+### More Info:
 Inspired by Wetrix developed by Zed Two (see gameplay video here: https://www.youtube.com/watch?v=XDdxAl47Hi4&t=12 ), but with different rules: In the original Wetrix, the goal is to place blocks to prevent water from falling off the table. In isoUisce the goal is to place blocks to prevent the ground from sinking.
 
 ## TODO:
