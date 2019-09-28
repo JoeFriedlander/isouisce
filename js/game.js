@@ -550,11 +550,11 @@ class Sky {
 			delete Sky.skyHolder[block];
 		}
 	};
-
+	//todo: add splash in other directions, add some randomness, graphics
 	static splashCheck(){
 		for(let block in Sky.skyHolder){
 			if(Ground.groundHolder[(Sky.skyHolder[block].x)][Sky.skyHolder[block].y].z <= 0){
-				if (Sky.skyHolder[block].x < gridColumnNum){
+				if (Sky.skyHolder[block].x < gridColumnNum-1){
 					Ground.groundHolder[(Sky.skyHolder[block].x+1)][Sky.skyHolder[block].y].z = 0;
 				}
 				console.log("splash")
@@ -566,7 +566,7 @@ class Sky {
 		//If part of the the skyshape touches the ground, the rest of it is
 		//moved down as well.
 		if (Sky.splashCheck()) {
-
+			//get rid of if here just do everything in splashCheck?
 		}
 		Ground.addHeight();
 		Sky.deleteSkyShape();
