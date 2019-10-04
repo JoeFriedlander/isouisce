@@ -550,14 +550,28 @@ class Sky {
 			delete Sky.skyHolder[block];
 		}
 	};
-	//todo: add splash in other directions, add some randomness, graphics
+
 	static splashCheck(){
 		for(let block in Sky.skyHolder){
+			//if the skyblock touches a water square
 			if(Ground.groundHolder[(Sky.skyHolder[block].x)][Sky.skyHolder[block].y].z <= 0){
+				console.log("splash")
+				//lowers block x+1 to zero
 				if (Sky.skyHolder[block].x < gridColumnNum-1){
 					Ground.groundHolder[(Sky.skyHolder[block].x+1)][Sky.skyHolder[block].y].z = 0;
 				}
-				console.log("splash")
+				//lowers block x-1 to zero
+				if (Sky.skyHolder[block].x > 0){
+					Ground.groundHolder[(Sky.skyHolder[block].x-1)][Sky.skyHolder[block].y].z = 0;
+				}
+				//lowers block y+1 to zero
+				if (Sky.skyHolder[block].y < gridRowNum-1){
+					Ground.groundHolder[(Sky.skyHolder[block].x)][Sky.skyHolder[block].y+1].z = 0;
+				}
+				//lowers block y-1 to zero
+				if (Sky.skyHolder[block].y > 0){
+					Ground.groundHolder[(Sky.skyHolder[block].x)][Sky.skyHolder[block].y-1].z = 0;
+				}
 			}
 		}
 	}
@@ -589,18 +603,20 @@ class Animal {
 class HUD {
 
 	static score = 0;
+	static highScore = 0;
 	static timerRunning = false;
 	static timerInterval;
 
 	static draw(){
 		//Draw score and other numbers
 		ctx.font = "25pt Garamond3Medium";
+		ctx.fillStyle = "white";
+		ctx.fillText("High Score:  " + HUD.highScore, -500, -210);
+		ctx.fillText("Score: ", -500, -180);
+		ctx.fillText("Submerged:  " + Ground.numSubmerged, -500, -130);
+		ctx.fillText("out of max:   " + Ground.maxSubmerged, -500, -100);
 		ctx.fillStyle = "gold";
 		ctx.fillText(HUD.score, -325, -180);
-		ctx.fillStyle = "white";
-		ctx.fillText("Score: ", -500, -180);
-		ctx.fillText("Submerged:  " + Ground.numSubmerged, -500, -150);
-		ctx.fillText("out of max:   " + Ground.maxSubmerged, -500, -120);
 
 		//draw minimap
 
@@ -620,6 +636,9 @@ class HUD {
 	};
 
 	static reset(){
+		if(HUD.score > HUD.highScore) {
+			HUD.highScore = HUD.score;
+		}
 		HUD.score = 0;
 		HUD.timerRunning = false;
 		clearInterval(HUD.timerInterval);
@@ -628,7 +647,7 @@ class HUD {
 };
 
 //MUSIC AND SOUNDS =======================================================
-var introSong = new Audio('data/sound/igor.wav');
+//var introSong = new Audio('data/sound/igor.wav');
 function resetIntroSong() {
 	introSong.currentTime=0;
 	introSong.play();
@@ -669,10 +688,10 @@ function frame() {
 	render();
 	requestAnimationFrame(frame);
 };
-introSong.pause()
-setTimeout(function () {      
-	introSong.play();
- }, 150);
+//introSong.pause()
+//setTimeout(function () {      
+//	introSong.play();
+// }, 150);
 Ground.initializeGroundHolder();
 Sky.createSkyShape();
 requestAnimationFrame(frame);
@@ -681,7 +700,7 @@ requestAnimationFrame(frame);
 //Handles key presses
 window.addEventListener("keydown", Sky.skyHolderMove, false);
 //Loops song
-introSong.addEventListener("ended", resetIntroSong, false);
+//introSong.addEventListener("ended", resetIntroSong, false);
 //Stops intervals if window is minimized - not working yet
 document.addEventListener("visibilitychange", function() {
 	HUD.TimerRunning = false;
