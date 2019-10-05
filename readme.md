@@ -14,7 +14,7 @@ Inspired by Wetrix developed by Zed Two (see gameplay video here: https://www.yo
 
 ## TODO:
 - Organize todo list better
-- get core gameplay down
+- get core gameplay down incl. block rotation
 - switch to and use typescript 
 - prevent squares from blocking view: transparency, camera change, overhead view?
 - minimize screen doesn't pause timer fix

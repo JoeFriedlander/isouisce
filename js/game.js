@@ -15,11 +15,11 @@ let height = canvas.height;
 let tileWidth = 70;
 let tileHeight = 40;
 let gridColumnNum = 10;
-let gridRowNum = 10;
+let gridRowNum = 8;
 let startingHeight = 2;
 let maxHeight = 3;
-let heightIncrease = .5;
-let sinkAmount = .0009;
+let heightIncrease = .6;
+let sinkAmount = .0006;
 
 //Manages the blocks on the ground
 class Ground {
@@ -107,15 +107,15 @@ class Ground {
 			if(Sky.skyHolder[block].x == this.x &&
 				Sky.skyHolder[block].y == this.y){
 					hasTopShadow = true;
-					if(this.y != gridColumnNum - 1){
+					if(this.y != gridRowNum-1){
 						hasLeftShadow = true;
 					}
-					if(this.x != gridRowNum - 1){
+					if(this.x != gridColumnNum-1){
 						hasRightShadow = true;
 					}
 			}
 		}
-		
+
 		//manages sinking color, becomes more blue as ground z is smaller, if z is 0 or below then it is same as background
 		if(this.z <= 0){
 			this.displayTop = hasTopShadow? this.waterZeroShadowColor :
@@ -144,7 +144,11 @@ class Ground {
 			this.displayRight = hasRightShadow? this.shadowColor :
 												this.waterTwoColor;
 		}
+		//Manages height dependant color. It's lighter the higher up it is, this helps prevent confusion of blocks next to one another
 		else if(this.z >= .5){
+			this.topColor = "hsla(0, 0%, " + (70 + (this.z * 10)) + "%, 1)"
+			this.rightColor = "hsla(0, 0%, " + (20 + (this.z * 20)) + "%, 1)"
+			this.leftColor = "hsla(0, 0%, " + (80 + (this.z * 5)) + "%, 1)"
 			this.displayTop = hasTopShadow? this.shadowColor :
 											this.topColor;
 			this.displayLeft = hasLeftShadow? this.shadowColor :
@@ -192,7 +196,7 @@ class Ground {
 						"hsla(0, 0%, 60%, 1)", //rightColor
 						"hsla(0, 0%, 0%, 1)", //lineColor
 						"hsla(0, 0%, 29%, 1)", //shadowColor
-						"hsla(211, 72%, 9%, 1)", //waterZeroShadowColor
+						"hsla(360, 100%, 24%, 1)", //waterZeroShadowColor
 						"hsla(189, 26%, 73%, 1)", //waterTwoColor
 						"hsla(189, 26%, 42%, 1)", //waterOneColor
 						"hsla(191, 89%, 7%, 1)" //waterZeroColor
@@ -456,7 +460,7 @@ class Sky {
 			case 101:
 			case 32:
 				for(let block in Sky.skyHolder){
-					Sky.skyHolder[block].z-=4;
+					Sky.skyHolder[block].z-=8;
 				}
 			break;
 		}
@@ -478,58 +482,24 @@ class Sky {
 	};
 
 	static createSkyShape(){
-		let choice = Math.random()*75;
-		if(choice < 25){
-			//square
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+		let choice = Math.random()*100;
+		if(choice < 20){
+			//single
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 + 1),
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 + 2),
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 + 2),
-			Math.floor(gridRowNum/2) + 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 + 2),
-			Math.floor(gridRowNum/2) + 2,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 + 2),
-			Math.floor(gridRowNum/2) + 3,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
-			Math.floor(gridRowNum/2) + 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 - 2),
-			Math.floor(gridRowNum/2) + 2,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 - 2),
-			Math.floor(gridRowNum/2) + 3,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 - 2),
-			Math.floor(gridRowNum/2) + 4,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 - 1),
-			Math.floor(gridRowNum/2) + 4,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 - 0),
-			Math.floor(gridRowNum/2) + 4,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 + 1),
-			Math.floor(gridRowNum/2) + 4,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2 + 2),
-			Math.floor(gridRowNum/2) + 4,Sky.skyBlockDefaultZ));
 		}
-		else if(choice >=25 && choice < 50){
+		else if(choice >=20 && choice < 40){
 			//squiggle
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
-			Math.floor(gridRowNum/2) + 1,Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2) + 1,Sky.skyBlockDefaultZ));
+			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2) + 1,Sky.skyBlockDefaultZ));
+			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 2,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
 		}
-		else if(choice >=50 && choice <= 75){
+		else if(choice >=40 && choice < 60){
 			//line
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
@@ -539,10 +509,30 @@ class Sky {
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 2,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-
 		}
+		//L shape
+		else if(choice >=60 && choice < 80){
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
+			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+		}
+		//closed square
+		else if(choice >= 80 && choice < 100){
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
+			Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
+			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
+			Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
+			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+		}
+
 	};
 
 	static deleteSkyShape(){
