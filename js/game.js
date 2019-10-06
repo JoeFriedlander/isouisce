@@ -500,6 +500,8 @@ class Sky {
 			let tempGridRowNum = gridRowNum;
 			gridRowNum = gridColumnNum;
 			gridColumnNum = tempGridRowNum;
+			//reverses sun
+			Background.reverseSun();
 			break;
 		}
 		
@@ -683,7 +685,10 @@ class HUD {
 
 //Background
 class Background {
-
+	static sunX = 155
+	static reverseSun() {
+		Background.sunX = -Background.sunX
+	}
 	static draw() {
 		//background color
 		ctx.beginPath();
@@ -698,7 +703,7 @@ class Background {
 		//Sun
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(57, 8, 2, 1)";
-		ctx.arc(width/2,155,90, 0, Math.PI, true)
+		ctx.arc(width/2 + Background.sunX,155,90, 0, Math.PI, true)
 		ctx.fill();
 		ctx.stroke();
 		//border lines
