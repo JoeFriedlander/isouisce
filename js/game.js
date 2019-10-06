@@ -257,17 +257,18 @@ class Ground {
 //Manages the shape that the user controls in the sky
 class Sky {
 
-	//Sky Block
+	//Sky Block. The center block is what the shape rotates around
 	static skyBlockDefaultZ = 8;
-	constructor(x, y, z){
+	constructor(x, y, z, centerBlock){
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.centerBlock = centerBlock;
 		//gives id so skyBlock can be deleted later
 		this.id = Object.keys(Sky.skyHolder).length;
-		this.topColor = "hsla(96, 100%, 24%, 1)";
-		this.leftColor = "hsla(17, 34%, 42%, 1)";
-		this.rightColor = "hsla(17, 54%, 29%, 1)";
+		this.topColor = "hsla(0, 10%, 73%, 1)";
+		this.leftColor = "hsla(100, 15%, 80%, 1)";
+		this.rightColor = "hsla(150, 10%, 60%, 1)";
 	};
 
 	draw = function(){
@@ -454,16 +455,54 @@ class Sky {
 				}
 			break;
 
-		}
 		//space or 5 key to place the piece
-		switch(e.keyCode){
 			case 101:
 			case 32:
 				for(let block in Sky.skyHolder){
 					Sky.skyHolder[block].z-=8;
 				}
 			break;
+		
+			//key d - spin board right
+			//case 68:
+				//for(let block in Ground.groundHolder){
+					
+				//}
+			//break;
+			//key a - spin board left
+			//Creates new grid switching the columns and rows, then assigns it
+			case 65:
+			case 68:
+			let tempGroundHolder = new Array(gridRowNum);
+			for(let i = 0; i < gridRowNum; i++){
+				tempGroundHolder[i] = new Array(gridColumnNum);
+				for(let j = 0; j < gridColumnNum; j++){
+					tempGroundHolder[i][j] = new Ground(
+							i, //x
+							j, //y
+							//((i == 0 || i == 9 || j == 0 || j == 9) ? startingHeight + 1 : (Math.random() * 1) ), //z
+							Ground.groundHolder[j][i].z,
+							//Math.random()),
+							"hsla(0, 0%, 73%, 1)", //topColor
+							"hsla(0, 0%, 80%, 1)", //leftColor
+							"hsla(0, 0%, 60%, 1)", //rightColor
+							"hsla(0, 0%, 0%, 1)", //lineColor
+							"hsla(0, 0%, 29%, 1)", //shadowColor
+							"hsla(360, 100%, 24%, 1)", //waterZeroShadowColor
+							"hsla(189, 26%, 73%, 1)", //waterTwoColor
+							"hsla(189, 26%, 42%, 1)", //waterOneColor
+							"hsla(191, 89%, 7%, 1)" //waterZeroColor
+					);
+				}
+			}
+			Ground.groundHolder = tempGroundHolder;
+			//also updates row and column number
+			let tempGridRowNum = gridRowNum;
+			gridRowNum = gridColumnNum;
+			gridColumnNum = tempGridRowNum;
+			break;
 		}
+		
 		//Occasionally x or y will be -1 or 10 (out of range), need to troubleshoot that, for now put it back to 0 or 9.
 		for(let block in Sky.skyHolder){
 			if(Sky.skyHolder[block].x < 0) {
@@ -483,7 +522,7 @@ class Sky {
 
 	static createSkyShape(){
 		let choice = Math.random()*100;
-		if(choice >=0 && choice < 25){
+		if(choice >=0 && choice < 20){
 			//squiggle
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
 			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
@@ -494,7 +533,7 @@ class Sky {
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
 			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
 		}
-		else if(choice >=25 && choice < 50){
+		else if(choice >=20 && choice < 40){
 			//line
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
@@ -506,7 +545,7 @@ class Sky {
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 		//L shape
-		else if(choice >=50 && choice < 75){
+		else if(choice >=40 && choice < 60){
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
 			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
@@ -517,7 +556,7 @@ class Sky {
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 		//closed square
-		else if(choice >= 75 && choice < 100){
+		else if(choice >= 60 && choice < 80){
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
 			Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
@@ -525,6 +564,17 @@ class Sky {
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
 			Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
+			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+		}
+		// T
+		else if(choice >= 80 && choice < 100){
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ, true));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
+			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 
@@ -596,12 +646,12 @@ class HUD {
 		//Draw score and other numbers
 		ctx.font = "25pt Garamond3Medium";
 		ctx.fillStyle = "white";
-		ctx.fillText("High Score:  " + HUD.highScore, -520, 240);
-		ctx.fillText("Score: ", -520, 210);
-		ctx.fillText("Submerged:  " + Ground.numSubmerged, -520, 280);
-		ctx.fillText("out of max:   " + Ground.maxSubmerged, -520, 310);
+		ctx.fillText("High Score:  " + HUD.highScore, -520, 280);
+		ctx.fillText("Score: ", -520, 310);
+		ctx.fillText("Submerged:  " + Ground.numSubmerged, -520, 360);
+		ctx.fillText("out of max:   " + Ground.maxSubmerged, -520, 390);
 		ctx.fillStyle = "gold";
-		ctx.fillText(HUD.score, -345, 210);
+		ctx.fillText(HUD.score, -345, 310);
 
 		//draw minimap
 
@@ -635,6 +685,23 @@ class HUD {
 class Background {
 
 	static draw() {
+		//background color
+		ctx.beginPath();
+		ctx.fillStyle = "rgba(2, 29, 35, 1)";
+		ctx.fillRect(0,0,width,height);
+		ctx.stroke();
+		//sky color
+		ctx.beginPath();
+		ctx.fillStyle = "rgba(130, 103, 40, 1)";
+		ctx.fillRect(5,5,width-10,150);
+		ctx.stroke();
+		//Sun
+		ctx.beginPath();
+		ctx.fillStyle = "rgba(57, 8, 2, 1)";
+		ctx.arc(width/2,155,90, 0, Math.PI, true)
+		ctx.fill();
+		ctx.stroke();
+		//border lines
 		ctx.beginPath();
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0,0,width,5);
