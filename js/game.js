@@ -51,6 +51,8 @@ class Ground {
 		ctx.save();
 		ctx.translate((this.x - this.y) * tileWidth / 2,
 					(this.x + this.y) * tileHeight / 2);
+		ctx.shadowColor = 'black';
+		ctx.shadowBlur = 1.2;
 
 		//draw top
 		ctx.beginPath();
@@ -275,6 +277,8 @@ class Sky {
 		ctx.save();
 		ctx.translate((this.x - this.y) * tileWidth / 2,
 					(this.x + this.y) * tileHeight / 2);
+		ctx.shadowColor = 'black';
+		ctx.shadowBlur = 1.5;
 
 		//draw top
 		ctx.beginPath();
@@ -701,11 +705,29 @@ class Background {
 		ctx.fillRect(5,5,width-10,150);
 		ctx.stroke();
 		//Sun
+		ctx.save();
+		ctx.shadowColor = "rgba(57, 8, 2, 1)";
+		ctx.shadowBlur = 150;
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(57, 8, 2, 1)";
 		ctx.arc(width/2 + Background.sunX,155,90, 0, Math.PI, true)
 		ctx.fill();
 		ctx.stroke();
+		ctx.restore();
+		//Sun outline
+		ctx.save();
+		ctx.lineWidth = 3;
+		ctx.shadowColor = "black";
+		ctx.shadowBlur = 1.2;
+		ctx.beginPath();
+		ctx.arc(width/2 + Background.sunX,155,90, 0, Math.PI, true)
+		ctx.stroke();
+		ctx.restore();
+		//horizon line
+		ctx.beginPath();
+		ctx.fillStyle = "black";
+		ctx.fillRect(5,152,width-10,3);
+		ctx.stroke();	
 		//border lines
 		ctx.beginPath();
 		ctx.fillStyle = 'black';
