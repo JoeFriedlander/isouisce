@@ -16,10 +16,10 @@ let tileWidth = 70;
 let tileHeight = 40;
 let gridColumnNum = 10;
 let gridRowNum = 8;
-let startingHeight = 2;
-let maxHeight = 3;
-let heightIncrease = .6;
-let sinkAmount = .0006;
+let startingHeight = 1.5;
+let maxHeight = 2.5;
+let heightIncrease = .5;
+let sinkAmount = .0002;
 
 //Manages the blocks on the ground
 class Ground {
@@ -146,7 +146,7 @@ class Ground {
 		}
 		//Manages height dependant color. It's lighter the higher up it is, this helps prevent confusion of blocks next to one another
 		else if(this.z >= .5){
-			this.topColor = "hsla(0, 0%, " + (70 + (this.z * 10)) + "%, 1)"
+			this.topColor = "hsla(0, 0%, " + (75 + (this.z * 10)) + "%, 1)"
 			this.rightColor = "hsla(0, 0%, " + (20 + (this.z * 20)) + "%, 1)"
 			this.leftColor = "hsla(0, 0%, " + (80 + (this.z * 5)) + "%, 1)"
 			this.displayTop = hasTopShadow? this.shadowColor :
@@ -265,9 +265,9 @@ class Sky {
 		this.z = z;
 		//gives id so skyBlock can be deleted later
 		this.id = Object.keys(Sky.skyHolder).length;
-		this.topColor = "hsla(220, 61%, 60%, 1)";
-		this.leftColor = "hsla(0, 0%, 80%, 1)";
-		this.rightColor = "hsla(0, 0%, 60%, 1)";
+		this.topColor = "hsla(96, 100%, 24%, 1)";
+		this.leftColor = "hsla(17, 34%, 42%, 1)";
+		this.rightColor = "hsla(17, 54%, 29%, 1)";
 	};
 
 	draw = function(){
@@ -483,12 +483,7 @@ class Sky {
 
 	static createSkyShape(){
 		let choice = Math.random()*100;
-		if(choice < 20){
-			//single
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-		}
-		else if(choice >=20 && choice < 40){
+		if(choice >=0 && choice < 25){
 			//squiggle
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
 			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
@@ -499,7 +494,7 @@ class Sky {
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
 			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
 		}
-		else if(choice >=40 && choice < 60){
+		else if(choice >=25 && choice < 50){
 			//line
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
@@ -511,7 +506,7 @@ class Sky {
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 		//L shape
-		else if(choice >=60 && choice < 80){
+		else if(choice >=50 && choice < 75){
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
 			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
@@ -522,7 +517,7 @@ class Sky {
 			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 		//closed square
-		else if(choice >= 80 && choice < 100){
+		else if(choice >= 75 && choice < 100){
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
 			Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
 			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
@@ -601,12 +596,12 @@ class HUD {
 		//Draw score and other numbers
 		ctx.font = "25pt Garamond3Medium";
 		ctx.fillStyle = "white";
-		ctx.fillText("High Score:  " + HUD.highScore, -500, -210);
-		ctx.fillText("Score: ", -500, -180);
-		ctx.fillText("Submerged:  " + Ground.numSubmerged, -500, -130);
-		ctx.fillText("out of max:   " + Ground.maxSubmerged, -500, -100);
+		ctx.fillText("High Score:  " + HUD.highScore, -520, 240);
+		ctx.fillText("Score: ", -520, 210);
+		ctx.fillText("Submerged:  " + Ground.numSubmerged, -520, 280);
+		ctx.fillText("out of max:   " + Ground.maxSubmerged, -520, 310);
 		ctx.fillStyle = "gold";
-		ctx.fillText(HUD.score, -325, -180);
+		ctx.fillText(HUD.score, -345, 210);
 
 		//draw minimap
 
@@ -636,6 +631,21 @@ class HUD {
 
 };
 
+//Background
+class Background {
+
+	static draw() {
+		ctx.beginPath();
+		ctx.fillStyle = 'black';
+		ctx.fillRect(0,0,width,5);
+		ctx.fillRect(0,height-5,width,5);
+		ctx.fillRect(0,0,width,5);
+		ctx.fillRect(0,0,5,height);
+		ctx.fillRect(width-5,0,5,height);
+		ctx.stroke();	
+	}
+}
+
 //MUSIC AND SOUNDS =======================================================
 //var introSong = new Audio('data/sound/igor.wav');
 function resetIntroSong() {
@@ -657,7 +667,9 @@ function update(){
 function render(){
 	//refreshes screen
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	//sets origin closer to middle of screen
+	//Draws background
+	Background.draw();
+	//sets origin closer to middle of screen, easier to draw isometric parts
 	ctx.save();
 	ctx.translate(width / 2, height / 2.1);
 	//draws ground blocks
