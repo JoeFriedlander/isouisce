@@ -378,7 +378,7 @@ class Sky {
 			break;
 			//left
 			case 100:
-				for(let block in Sky.kyHolder){
+				for(let block in Sky.skyHolder){
 					if(!(Sky.skyHolder[block].x> 0) ||
 					!(Sky.skyHolder[block].y < gridRowNum - 1)){
 						canMove = false;
@@ -480,22 +480,6 @@ class Sky {
 			//reverses sun
 			Background.reverseSun();
 			break;
-		}
-		
-		//Occasionally x or y will be -1 or 10 (out of range), need to troubleshoot that, for now put it back to 0 or 9.
-		for(let block in Sky.skyHolder){
-			if(Sky.skyHolder[block].x < 0) {
-				Sky.skyHolder[block].x = 0;
-			}
-			if(Sky.skyHolder[block].y < 0) {
-				Sky.skyHolder[block].y = 0;
-			}
-			if(Sky.skyHolder[block].x > gridColumnNum -1 ) {
-				Sky.skyHolder[block].x = gridColumnNum - 1;
-			}
-			if(Sky.skyHolder[block].y > gridRowNum - 1) {
-				Sky.skyHolder[block].y = gridRowNum - 1;
-			}
 		}
 	};
 
