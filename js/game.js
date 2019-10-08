@@ -19,40 +19,36 @@ let gridRowNum = 8;
 let startingHeight = 1.5;
 let maxHeight = 2.5;
 let heightIncrease = .5;
-let sinkAmount = .0002;
+//let sinkAmount = .0002;
+let sinkAmount = .000;
 
 //Manages the blocks on the ground
 class Ground {
 
 	//Ground Block
-	constructor(x, y, z, topColor, leftColor, rightColor, lineColor,
-			shadowColor, waterZeroShadowColor, waterTwoColor, waterOneColor,
-			waterZeroColor){
-		this.x = x;
-		this.y = y;
+	constructor(z){
 		this.z = z;
-		this.topColor = topColor;
-		this.leftColor = leftColor;
-		this.rightColor = rightColor;
-		this.shadowColor = shadowColor;
-		this.waterZeroShadowColor = waterZeroShadowColor;
-		this.waterTwoColor = waterTwoColor;
-		this.waterOneColor = waterOneColor;
-		this.waterZeroColor = waterZeroColor;
-		this.displayTop = topColor;
-		this.displayLeft = leftColor;
-		this.displayRight = rightColor;
-		this.lineColor = lineColor;
-		this.displayLine = lineColor;
-
+		this.topColor = "hsla(0, 0%, 73%, 1)";
+		this.leftColor = "hsla(0, 0%, 80%, 1)";
+		this.rightColor = "hsla(0, 0%, 60%, 1)";
+		this.shadowColor = "hsla(0, 0%, 29%, 1)";
+		this.waterZeroShadowColor = "hsla(360, 100%, 24%, 1)";
+		this.waterTwoColor = "hsla(189, 26%, 73%, 1)";
+		this.waterOneColor = "hsla(189, 26%, 42%, 1)";
+		this.waterZeroColor = "hsla(191, 89%, 7%, 1)";
+		this.displayTop = this.topColor;
+		this.displayLeft = this.leftColor;
+		this.displayRight = this.rightColor;
+		this.lineColor = "hsla(0, 0%, 0%, 1)";
+		this.displayLine = "hsla(0, 0%, 0%, 1)";
 	};
 
-	draw = function(){
+	draw = function(x,y){
 		ctx.save();
-		ctx.translate((this.x - this.y) * tileWidth / 2,
-					(this.x + this.y) * tileHeight / 2);
+		ctx.translate((x - y) * tileWidth / 2,
+					(x + y) * tileHeight / 2);
 		ctx.shadowColor = 'black';
-		ctx.shadowBlur = 1.2;
+		ctx.shadowBlur = 1.3;
 
 		//draw top
 		ctx.beginPath();
@@ -94,25 +90,25 @@ class Ground {
 
 	};
 
-	update = function(){
-		this.manageColor();
+	update = function(x,y){
+		this.manageColor(x,y);
 		this.sink();
 	};
 
-	manageColor = function(){
+	manageColor = function(x,y){
 		
 		//manages shadows
 		let hasTopShadow = false;
 		let hasLeftShadow = false;
 		let hasRightShadow = false;
 		for(let block in Sky.skyHolder){
-			if(Sky.skyHolder[block].x == this.x &&
-				Sky.skyHolder[block].y == this.y){
+			if(Sky.skyHolder[block].x == x &&
+				Sky.skyHolder[block].y == y){
 					hasTopShadow = true;
-					if(this.y != gridRowNum-1){
+					if(y != gridRowNum-1){
 						hasLeftShadow = true;
 					}
-					if(this.x != gridColumnNum-1){
+					if(x != gridColumnNum-1){
 						hasRightShadow = true;
 					}
 			}
@@ -188,20 +184,9 @@ class Ground {
 			Ground.groundHolder[i] = new Array(gridRowNum);
 			for(let j = 0; j < gridRowNum; j++){
 				Ground.groundHolder[i][j] = new Ground(
-						i, //x
-						j, //y
 						//((i == 0 || i == 9 || j == 0 || j == 9) ? startingHeight + 1 : (Math.random() * 1) ), //z
 						startingHeight,
 						//Math.random()),
-						"hsla(0, 0%, 73%, 1)", //topColor
-						"hsla(0, 0%, 80%, 1)", //leftColor
-						"hsla(0, 0%, 60%, 1)", //rightColor
-						"hsla(0, 0%, 0%, 1)", //lineColor
-						"hsla(0, 0%, 29%, 1)", //shadowColor
-						"hsla(360, 100%, 24%, 1)", //waterZeroShadowColor
-						"hsla(189, 26%, 73%, 1)", //waterTwoColor
-						"hsla(189, 26%, 42%, 1)", //waterOneColor
-						"hsla(191, 89%, 7%, 1)" //waterZeroColor
 				);
 			}
 		}
@@ -209,8 +194,8 @@ class Ground {
 
 	static update() {
 		let submergedCount = 0;
-		for(let i = 0; i < Ground.groundHolder.length; i++){
-			for(let j = 0; j < Ground.groundHolder[i].length; j++){
+		for(let i = 0; i < gridColumnNum; i++){
+			for(let j = 0; j < gridRowNum; j++){
 				Ground.groundHolder[i][j].update();
 				if(Ground.groundHolder[i][j].z <= 0){
 					submergedCount++;
@@ -226,16 +211,16 @@ class Ground {
 	};
 
 	static draw(){
-		for(let i = 0; i < Ground.groundHolder.length; i++){
-			for(let j = 0; j < Ground.groundHolder[i].length; j++){
-				Ground.groundHolder[i][j].draw();
+		for(let x = 0; x < gridColumnNum; x++){
+			for(let y = 0; y < gridRowNum; y++){
+				Ground.groundHolder[x][y].draw(x,y);
 			}
 		}
 	};
 	
 	static reset(){
-		for(let i = 0; i < Ground.groundHolder.length; i++){
-			for(let j = 0; j < Ground.groundHolder[i].length; j++){
+		for(let i = 0; i < gridColumnNum; i++){
+			for(let j = 0; j < gridRowNum; j++){
 				Ground.groundHolder[i][j].z = startingHeight;
 			}
 		}
@@ -477,27 +462,15 @@ class Sky {
 			//Creates new grid switching the columns and rows, then assigns it
 			case 65:
 			case 68:
+			
 			let tempGroundHolder = new Array(gridRowNum);
 			for(let i = 0; i < gridRowNum; i++){
-				tempGroundHolder[i] = new Array(gridColumnNum);
+				tempGroundHolder[i] = [];
 				for(let j = 0; j < gridColumnNum; j++){
-					tempGroundHolder[i][j] = new Ground(
-							i, //x
-							j, //y
-							//((i == 0 || i == 9 || j == 0 || j == 9) ? startingHeight + 1 : (Math.random() * 1) ), //z
-							Ground.groundHolder[j][i].z,
-							//Math.random()),
-							"hsla(0, 0%, 73%, 1)", //topColor
-							"hsla(0, 0%, 80%, 1)", //leftColor
-							"hsla(0, 0%, 60%, 1)", //rightColor
-							"hsla(0, 0%, 0%, 1)", //lineColor
-							"hsla(0, 0%, 29%, 1)", //shadowColor
-							"hsla(360, 100%, 24%, 1)", //waterZeroShadowColor
-							"hsla(189, 26%, 73%, 1)", //waterTwoColor
-							"hsla(189, 26%, 42%, 1)", //waterOneColor
-							"hsla(191, 89%, 7%, 1)" //waterZeroColor
-					);
+					tempGroundHolder[i][j] = new Ground(Ground.groundHolder[j][i].z);
+					console.log(Ground.groundHolder[j][i].z);
 				}
+				tempGroundHolder[i].reverse();
 			}
 			Ground.groundHolder = tempGroundHolder;
 			//also updates row and column number
