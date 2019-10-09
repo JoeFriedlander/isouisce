@@ -10,15 +10,14 @@ canvas.oncontextmenu = function() {
 	return false;
 };
 let ctx = canvas.getContext("2d");
-let width = canvas.width;
-let height = canvas.height;
+
 let tileWidth = 70;
 let tileHeight = 40;
 let gridColumnNum = 10;
 let gridRowNum = 8;
 let startingHeight = 1.5;
-let maxHeight = 2.5;
-let heightIncrease = .5;
+let maxHeight = 3;
+let heightIncrease = .6;
 //let sinkAmount = .0002;
 let sinkAmount = .000;
 
@@ -42,6 +41,22 @@ class Ground {
 		this.lineColor = "hsla(0, 0%, 0%, 1)";
 		this.displayLine = "hsla(0, 0%, 0%, 1)";
 	};
+
+	static rotateLeft() {
+		let tempGroundHolder = new Array(gridRowNum);
+		for(let i = 0; i < gridRowNum; i++){
+			tempGroundHolder[i] = [];
+			for(let j = 0; j < gridColumnNum; j++){
+				tempGroundHolder[i][j] = new Ground(Ground.groundHolder[j][i].z);
+			}
+			tempGroundHolder[i].reverse();
+		}
+		Ground.groundHolder = tempGroundHolder;
+		//also updates row and column number
+		let tempGridRowNum = gridRowNum;
+		gridRowNum = gridColumnNum;
+		gridColumnNum = tempGridRowNum;
+	}
 
 	draw = function(x,y){
 		ctx.save();
@@ -96,7 +111,6 @@ class Ground {
 	};
 
 	manageColor = function(x,y){
-		
 		//manages shadows
 		let hasTopShadow = false;
 		let hasLeftShadow = false;
@@ -194,10 +208,10 @@ class Ground {
 
 	static update() {
 		let submergedCount = 0;
-		for(let i = 0; i < gridColumnNum; i++){
-			for(let j = 0; j < gridRowNum; j++){
-				Ground.groundHolder[i][j].update();
-				if(Ground.groundHolder[i][j].z <= 0){
+		for(let x = 0; x < gridColumnNum; x++){
+			for(let y = 0; y < gridRowNum; y++){
+				Ground.groundHolder[x][y].update(x,y);
+				if(Ground.groundHolder[x][y].z <= 0){
 					submergedCount++;
 				}
 			}
@@ -451,34 +465,15 @@ class Sky {
 					Sky.skyHolder[block].z-=8;
 				}
 			break;
-		
-			//key d - spin board right
-			//case 68:
-				//for(let block in Ground.groundHolder){
-					
-				//}
-			//break;
-			//key a - spin board left
-			//Creates new grid switching the columns and rows, then assigns it
 			case 65:
+			Ground.rotateLeft();
+			break;
 			case 68:
-			
-			let tempGroundHolder = new Array(gridRowNum);
-			for(let i = 0; i < gridRowNum; i++){
-				tempGroundHolder[i] = [];
-				for(let j = 0; j < gridColumnNum; j++){
-					tempGroundHolder[i][j] = new Ground(Ground.groundHolder[j][i].z);
-					console.log(Ground.groundHolder[j][i].z);
-				}
-				tempGroundHolder[i].reverse();
-			}
-			Ground.groundHolder = tempGroundHolder;
-			//also updates row and column number
-			let tempGridRowNum = gridRowNum;
-			gridRowNum = gridColumnNum;
-			gridColumnNum = tempGridRowNum;
+			Ground.rotateLeft();
+			Ground.rotateLeft();
+			Ground.rotateLeft();
 			//reverses sun
-			Background.reverseSun();
+			//Background.reverseSun();
 			break;
 		}
 	};
@@ -487,60 +482,39 @@ class Sky {
 		let choice = Math.random()*100;
 		if(choice >=0 && choice < 20){
 			//squiggle
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
 		}
 		else if(choice >=20 && choice < 40){
 			//line
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 		//L shape
 		else if(choice >=40 && choice < 60){
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) + 1,Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 		//closed square
 		else if(choice >= 60 && choice < 80){
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),Math.floor(gridRowNum/2)-1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
 		// T
 		else if(choice >= 80 && choice < 100){
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ, true));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),
-			Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
-			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,
-			Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 2,Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ, true));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2),Math.floor(gridRowNum/2) - 1,Sky.skyBlockDefaultZ));
+			Sky.skyHolder.push(new Sky(Math.floor(gridColumnNum/2) - 1,Math.floor(gridRowNum/2),Sky.skyBlockDefaultZ));
 		}
-
 	};
 
 	static deleteSkyShape(){
@@ -654,20 +628,20 @@ class Background {
 		//background color
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(2, 29, 35, 1)";
-		ctx.fillRect(0,0,width,height);
+		ctx.fillRect(0,0,canvas.width,canvas.height);
 		ctx.stroke();
 		//sky color
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(130, 103, 40, 1)";
-		ctx.fillRect(5,5,width-10,150);
+		ctx.fillRect(5,5,canvas.width-10,150);
 		ctx.stroke();
 		//Sun
 		ctx.save();
-		ctx.shadowColor = "rgba(57, 8, 2, 1)";
-		ctx.shadowBlur = 150;
+		ctx.shadowColor = "rgba(255, 255, 255, 1)";
+		ctx.shadowBlur = 140;
 		ctx.beginPath();
 		ctx.fillStyle = "rgba(57, 8, 2, 1)";
-		ctx.arc(width/2 + Background.sunX,155,90, 0, Math.PI, true)
+		ctx.arc(canvas.width/2 + Background.sunX,155,90, 0, Math.PI, true)
 		ctx.fill();
 		ctx.stroke();
 		ctx.restore();
@@ -677,22 +651,22 @@ class Background {
 		ctx.shadowColor = "black";
 		ctx.shadowBlur = 1.2;
 		ctx.beginPath();
-		ctx.arc(width/2 + Background.sunX,155,90, 0, Math.PI, true)
+		ctx.arc(canvas.width/2 + Background.sunX,155,90, 0, Math.PI, true)
 		ctx.stroke();
 		ctx.restore();
 		//horizon line
 		ctx.beginPath();
 		ctx.fillStyle = "black";
-		ctx.fillRect(5,152,width-10,3);
+		ctx.fillRect(5,152,canvas.width-10,3);
 		ctx.stroke();	
 		//border lines
 		ctx.beginPath();
 		ctx.fillStyle = 'black';
-		ctx.fillRect(0,0,width,5);
-		ctx.fillRect(0,height-5,width,5);
-		ctx.fillRect(0,0,width,5);
-		ctx.fillRect(0,0,5,height);
-		ctx.fillRect(width-5,0,5,height);
+		ctx.fillRect(0,0,canvas.width,5);
+		ctx.fillRect(0,canvas.height-5,canvas.width,5);
+		ctx.fillRect(0,0,canvas.width,5);
+		ctx.fillRect(0,0,5,canvas.height);
+		ctx.fillRect(canvas.width-5,0,5,canvas.height);
 		ctx.stroke();	
 	}
 }
@@ -722,7 +696,7 @@ function render(){
 	Background.draw();
 	//sets origin closer to middle of screen, easier to draw isometric parts
 	ctx.save();
-	ctx.translate(width / 2, height / 2.1);
+	ctx.translate(canvas.width / 2, canvas.height / 2.1);
 	//draws ground blocks
 	Ground.draw();
 	//draws surroundings
