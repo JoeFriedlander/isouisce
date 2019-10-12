@@ -504,14 +504,14 @@ class Sky {
 			case 65:
 			Ground.rotateLeft();
 			//reverses sun
-			Background.reverseSun();
+			Background.rotateLeft();
 			break;
 			case 68:
 			Ground.rotateLeft();
 			Ground.rotateLeft();
 			Ground.rotateLeft();
 			//reverses sun
-			Background.reverseSun();
+			Background.rotateRight();
 			break;
 		}
 	};
@@ -656,10 +656,43 @@ class HUD {
 
 //Background
 class Background {
-	static sunX = 155
-	static reverseSun() {
-		Background.sunX = -Background.sunX
+
+	//four directions for the different rotations
+	static direction = 0;
+	static defaultSunX = 155
+	static sunX = Background.defaultSunX;
+
+	static rotateLeft(){
+		if (Background.direction != 3){
+			Background.direction++;
+		}
+		else {
+			Background.direction = 0;
+		}
+		Background.updateBackground();
 	}
+	static rotateRight(){
+		if (Background.direction != 0){
+			Background.direction--;
+		}
+		else {
+			Background.direction = 3;
+		}
+		Background.updateBackground();
+	}
+
+	static updateBackground() {
+		if (Background.direction === 0) {
+			Background.sunX = Background.defaultSunX;
+		}
+		else if (Background.direction === 1){
+			Background.sunX = (-1 * Background.defaultSunX)
+		}
+		else {
+			Background.sunX = -1000;
+		}
+	}
+
 	static draw() {
 		//background color
 		ctx.beginPath();
