@@ -19,7 +19,7 @@ let gridRowNum = 8;
 let startingHeight = 1.5;
 let maxHeight = 3;
 let heightIncrease = .6;
-let sinkAmount = .0003;
+let sinkAmount = .0002;
 
 //Manages the blocks on the ground
 class Ground {
@@ -503,13 +503,15 @@ class Sky {
 			break;
 			case 65:
 			Ground.rotateLeft();
+			//reverses sun
+			Background.reverseSun();
 			break;
 			case 68:
 			Ground.rotateLeft();
 			Ground.rotateLeft();
 			Ground.rotateLeft();
 			//reverses sun
-			//Background.reverseSun();
+			Background.reverseSun();
 			break;
 		}
 	};
