@@ -11,6 +11,7 @@ canvas.oncontextmenu = function() {
 };
 let ctx = canvas.getContext("2d");
 
+//Settings
 let tileWidth = 70;
 let tileHeight = 40;
 let gridColumnNum = 10;
@@ -18,8 +19,7 @@ let gridRowNum = 8;
 let startingHeight = 1.5;
 let maxHeight = 3;
 let heightIncrease = .6;
-//let sinkAmount = .0002;
-let sinkAmount = .000;
+let sinkAmount = .0003;
 
 //Manages the blocks on the ground
 class Ground {
@@ -52,7 +52,9 @@ class Ground {
 			tempGroundHolder[i].reverse();
 		}
 		Ground.groundHolder = tempGroundHolder;
-		//also updates row and column number
+		//rotates sky block
+		Sky.rotate();
+		//updates row and column number
 		let tempGridRowNum = gridRowNum;
 		gridRowNum = gridColumnNum;
 		gridColumnNum = tempGridRowNum;
@@ -327,6 +329,40 @@ class Sky {
 		}
 	};
 
+	static rotate(){
+		//creates array with current grid dimensions
+		let skyBlockLocationArray = new Array(gridColumnNum)
+		for(let i = 0; i < gridColumnNum; i++){
+			skyBlockLocationArray[i] = new Array(gridRowNum);
+			for(let j = 0; j < gridRowNum; j++){
+				skyBlockLocationArray[i][j] = false;
+			}
+		}
+		//sets hasSkyBlock to True on each object where a skyblock exists
+		for(let block of Sky.skyHolder){
+			skyBlockLocationArray[block.x][block.y] = true;
+		}
+		//rotates array
+		let tempArray = new Array(gridRowNum);
+		for(let i = 0; i < gridRowNum; i++){
+			tempArray[i] = [];
+			for(let j = 0; j < gridColumnNum; j++){
+				tempArray[i][j] = skyBlockLocationArray[j][i];
+			}
+			tempArray[i].reverse();
+		}
+		//deletes current skyShape
+		Sky.deleteSkyShape();
+		//creates new sky shape from rotated array information
+		for (let i = 0; i < tempArray.length; i++) {
+			for (let j = 0; j < tempArray[0].length; j++) {
+				if (tempArray[i][j] == true){
+					Sky.skyHolder.push(new Sky(i,j,Sky.skyBlockDefaultZ));
+				}
+			} 
+		}
+	}
+
 	//Sky Holder
 	static skyHolder = [];
 
@@ -518,9 +554,7 @@ class Sky {
 	};
 
 	static deleteSkyShape(){
-		for(let block in Sky.skyHolder){
-			delete Sky.skyHolder[block];
-		}
+		Sky.skyHolder = [];
 	};
 
 	static splashCheck(){
