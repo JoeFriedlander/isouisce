@@ -381,7 +381,8 @@ class Sky {
 	static skyHolderMove(e){
 		let canMove = true;
 		switch(e.keyCode){
-			//keypad up
+			//up
+			case 38:
 			case 104:
 				for(let block in Sky.skyHolder){
 					if(!(Sky.skyHolder[block].x > 0) ||
@@ -397,6 +398,7 @@ class Sky {
 				}
 			break;
 			//down
+			case 40:
 			case 98:
 				for(let block in Sky.skyHolder){
 					if(!(Sky.skyHolder[block].x < gridColumnNum - 1) ||
@@ -412,6 +414,7 @@ class Sky {
 				}
 			break;
 			//right
+			case 39:
 			case 102:
 				for(let block in Sky.skyHolder){
 					if(!(Sky.skyHolder[block].x < gridColumnNum - 1) ||
@@ -427,6 +430,7 @@ class Sky {
 				}
 			break;
 			//left
+			case 37:
 			case 100:
 				for(let block in Sky.skyHolder){
 					if(!(Sky.skyHolder[block].x> 0) ||
@@ -704,7 +708,8 @@ class Background {
 		ctx.fillStyle = "rgba(130, 103, 40, 1)";
 		ctx.fillRect(5,5,canvas.width-10,150);
 		ctx.stroke();
-		//Sun
+		//Sun DISABLED FOR NOW BECAUSE ITS ANNOYING
+		/*
 		ctx.save();
 		ctx.shadowColor = "rgba(255, 255, 255, 1)";
 		ctx.shadowBlur = 140;
@@ -723,6 +728,7 @@ class Background {
 		ctx.arc(canvas.width/2 + Background.sunX,155,90, 0, Math.PI, true)
 		ctx.stroke();
 		ctx.restore();
+		*/
 		//horizon line
 		ctx.beginPath();
 		ctx.fillStyle = "black";
