@@ -6,7 +6,7 @@
 
 ### Guide:
 1. Keep land above water.
-2. Make sure numlock is on and use keypad to move around. Press spacebar or center keypad key (5) to place blocks on land to add height.
+2. Use keypad to move blocks around (numlock may need to be enabled). Press spacebar or center keypad key (5) to place blocks. A and D change the view.
 3. Don't place blocks in the water - they will splash.
 
 ### More Info:
